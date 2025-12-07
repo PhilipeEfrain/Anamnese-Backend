@@ -62,3 +62,12 @@ export interface IClient extends Document {
   address?: string;
   pets: Schema.Types.ObjectId[];
 }
+
+export interface IVet {
+  email: string;
+  password: string;
+}
+
+export interface IVetDocument extends IVet, Document {
+  comparePassword(candidate: string): Promise<boolean>;
+}
