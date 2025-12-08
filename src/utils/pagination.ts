@@ -20,13 +20,13 @@ export interface PaginationResult<T> {
 
 export interface SortParams {
   field: string;
-  order: 'asc' | 'desc';
+  order: "asc" | "desc";
 }
 
 export function getPaginationParams(req: Request): PaginationParams {
   const pageNum = parseInt(req.query.page as string);
   const limitNum = parseInt(req.query.limit as string);
-  
+
   const page = Math.max(1, isNaN(pageNum) ? 1 : pageNum);
   const limit = Math.min(100, Math.max(1, isNaN(limitNum) ? 10 : limitNum));
   const skip = (page - 1) * limit;
@@ -57,13 +57,21 @@ export function createPaginationResult<T>(
 
 export interface SortParams {
   field: string;
-  order: 'asc' | 'desc';
+  order: "asc" | "desc";
 }
 
-export function getSortParams(req: Request, defaultField = 'createdAt', defaultOrder: 'asc' | 'desc' = 'desc'): SortParams {
+export function getSortParams(
+  req: Request,
+  defaultField = "createdAt",
+  defaultOrder: "asc" | "desc" = "desc"
+): SortParams {
   const sortBy = (req.query.sortBy as string) || defaultField;
-  const sortOrder = (req.query.sortOrder as string) === 'asc' ? 'asc' : 
-                    (req.query.sortOrder as string) === 'desc' ? 'desc' : defaultOrder;
+  const sortOrder =
+    (req.query.sortOrder as string) === "asc"
+      ? "asc"
+      : (req.query.sortOrder as string) === "desc"
+      ? "desc"
+      : defaultOrder;
 
   return {
     field: sortBy,
@@ -73,7 +81,7 @@ export function getSortParams(req: Request, defaultField = 'createdAt', defaultO
 
 export function buildSortObject(sort: SortParams): Record<string, 1 | -1> {
   return {
-    [sort.field]: sort.order === 'asc' ? 1 : -1,
+    [sort.field]: sort.order === "asc" ? 1 : -1,
   };
 }
 
@@ -81,13 +89,13 @@ export function buildSearchFilter(
   searchTerm: string | undefined,
   searchFields: string[]
 ): any {
-  if (!searchTerm || searchTerm.trim() === '') {
+  if (!searchTerm || searchTerm.trim() === "") {
     return null;
   }
 
-  const regex = new RegExp(searchTerm.trim(), 'i');
+  const regex = new RegExp(searchTerm.trim(), "i");
   return {
-    $or: searchFields.map(field => ({ [field]: regex })),
+    $or: searchFields.map((field) => ({ [field]: regex })),
   };
 }
 
@@ -96,17 +104,20 @@ export function buildDateRangeFilter(
   startDate: string | undefined,
   endDate: string | undefined
 ): any {
-  if ((!startDate || startDate.trim() === '') && (!endDate || endDate.trim() === '')) {
+  if (
+    (!startDate || startDate.trim() === "") &&
+    (!endDate || endDate.trim() === "")
+  ) {
     return null;
   }
 
   const filter: any = {};
 
-  if (startDate && startDate.trim() !== '') {
+  if (startDate && startDate.trim() !== "") {
     filter.$gte = new Date(startDate);
   }
 
-  if (endDate && endDate.trim() !== '') {
+  if (endDate && endDate.trim() !== "") {
     const end = new Date(endDate);
     end.setHours(23, 59, 59, 999);
     filter.$lte = end;

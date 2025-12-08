@@ -21,12 +21,12 @@ export async function createClient(req: Request, res: Response) {
 export async function getAllClients(req: Request, res: Response) {
   try {
     const { page, limit, skip } = getPaginationParams(req);
-    const sort = getSortParams(req, 'name');
+    const sort = getSortParams(req, "name");
     const search = req.query.search as string;
 
     let filter: any = {};
 
-    const searchFilter = buildSearchFilter(search, ['name', 'email', 'phone']);
+    const searchFilter = buildSearchFilter(search, ["name", "email", "phone"]);
     if (searchFilter) {
       filter = { ...filter, ...searchFilter };
     }

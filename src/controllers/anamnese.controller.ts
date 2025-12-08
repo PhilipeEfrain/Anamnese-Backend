@@ -21,7 +21,7 @@ export const createAnamnese = async (req: Request, res: Response) => {
 export const getAll = async (req: Request, res: Response) => {
   try {
     const { page, limit, skip } = getPaginationParams(req);
-    const sort = getSortParams(req, 'date', 'desc');
+    const sort = getSortParams(req, "date", "desc");
     const search = req.query.search as string;
     const status = req.query.status as string;
     const startDate = req.query.startDate as string;
@@ -29,7 +29,12 @@ export const getAll = async (req: Request, res: Response) => {
 
     let filter: any = {};
 
-    const searchFilter = buildSearchFilter(search, ['reason', 'assessment', 'diagnosis', 'treatment']);
+    const searchFilter = buildSearchFilter(search, [
+      "reason",
+      "assessment",
+      "diagnosis",
+      "treatment",
+    ]);
     if (searchFilter) {
       filter = { ...filter, ...searchFilter };
     }
@@ -38,7 +43,7 @@ export const getAll = async (req: Request, res: Response) => {
       filter.status = status;
     }
 
-    const dateFilter = buildDateRangeFilter('date', startDate, endDate);
+    const dateFilter = buildDateRangeFilter("date", startDate, endDate);
     if (dateFilter) {
       filter = { ...filter, ...dateFilter };
     }

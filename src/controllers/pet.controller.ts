@@ -32,20 +32,20 @@ export async function createPet(req: Request, res: Response) {
 export async function getAllPets(req: Request, res: Response) {
   try {
     const { page, limit, skip } = getPaginationParams(req);
-    const sort = getSortParams(req, 'name');
+    const sort = getSortParams(req, "name");
     const search = req.query.search as string;
     const species = req.query.species as string;
     const owner = req.query.owner as string;
 
     let filter: any = {};
 
-    const searchFilter = buildSearchFilter(search, ['name', 'breed']);
+    const searchFilter = buildSearchFilter(search, ["name", "breed"]);
     if (searchFilter) {
       filter = { ...filter, ...searchFilter };
     }
 
     if (species) {
-      filter.species = new RegExp(species, 'i');
+      filter.species = new RegExp(species, "i");
     }
 
     if (owner) {

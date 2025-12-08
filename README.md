@@ -263,14 +263,17 @@ Todos os endpoints de listagem (`GET /client`, `GET /pet`, `GET /anamnese`) supo
 #### Parâmetros de Busca
 
 **Para Clients:**
+
 - `search` (string): Busca por nome, email ou telefone
 
 **Para Pets:**
+
 - `search` (string): Busca por nome ou raça
 - `species` (string): Filtra por espécie
 - `owner` (ObjectId): Filtra por proprietário
 
 **Para Anamneses:**
+
 - `search` (string): Busca por motivo, avaliação, diagnóstico ou tratamento
 - `status` (string): Filtra por status
 - `startDate` (data): Data inicial do filtro
@@ -279,24 +282,28 @@ Todos os endpoints de listagem (`GET /client`, `GET /pet`, `GET /anamnese`) supo
 #### Exemplos de Uso
 
 **Listar clientes com paginação:**
+
 ```http
 GET http://localhost:3000/client?page=1&limit=10&sortBy=name&sortOrder=asc
 Authorization: Bearer SEU_TOKEN_AQUI
 ```
 
 **Buscar clientes por nome:**
+
 ```http
 GET http://localhost:3000/client?search=maria&page=1&limit=10
 Authorization: Bearer SEU_TOKEN_AQUI
 ```
 
 **Listar pets de um cliente específico:**
+
 ```http
 GET http://localhost:3000/pet?owner=ID_DO_CLIENTE&page=1&limit=20
 Authorization: Bearer SEU_TOKEN_AQUI
 ```
 
 **Buscar anamneses em um período:**
+
 ```http
 GET http://localhost:3000/anamnese?startDate=2024-01-01&endDate=2024-12-31&sortBy=date&sortOrder=desc
 Authorization: Bearer SEU_TOKEN_AQUI
