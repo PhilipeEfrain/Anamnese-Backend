@@ -100,6 +100,28 @@ npm run test:coverage    # Executa testes com relatório de cobertura
 
 ## 🧪 Testando a API
 
+### 📚 Documentação Interativa (Swagger)
+
+A documentação completa da API está disponível via Swagger UI:
+
+**🔗 Acesse:** [http://localhost:3000/api-docs](http://localhost:3000/api-docs)
+
+- ✅ Todos os endpoints documentados
+- ✅ Esquemas de request/response
+- ✅ Teste direto pelo navegador (Try it out)
+- ✅ Autenticação JWT integrada
+- ✅ Filtros e paginação documentados
+
+**Como usar o Swagger:**
+
+1. Inicie o servidor (`npm run dev`)
+2. Acesse `http://localhost:3000/api-docs`
+3. Para endpoints protegidos:
+   - Clique em "Authorize" (canto superior direito)
+   - Cole seu token JWT no formato: `Bearer SEU_TOKEN_AQUI`
+   - Clique em "Authorize" e depois "Close"
+4. Navegue pelos endpoints e use "Try it out" para testar
+
 ### Opção 1: Testes Automatizados (Recomendado)
 
 ```bash
@@ -373,14 +395,6 @@ curl -X POST http://localhost:3000/client \
   }'
 ```
 
-## 📚 Documentação Completa
-
-- **[API_DOCUMENTATION.md](./API_DOCUMENTATION.md)** - Documentação detalhada de todos os endpoints
-- **[TESTING_GUIDE.md](./TESTING_GUIDE.md)** - Guia completo de testes
-- **[SECURITY_ANALYSIS.md](./SECURITY_ANALYSIS.md)** - Análise e implementações de segurança
-- **[JEST_BACKEND_GUIDE.md](./JEST_BACKEND_GUIDE.md)** - Guia de testes Jest para desenvolvedores Angular
-- **[Anamnese-Backend.md](./Anamnese-Backend.md)** - Especificação técnica original do projeto
-
 ## 🌐 Endpoints Principais
 
 ### Veterinários (Public)
@@ -608,7 +622,7 @@ Execute `npm run test:coverage` para ver o relatório completo.
 
 - [x] Implementar refresh tokens
 - [x] Implementar paginação e filtros avançados
-- [ ] Criar documentação Swagger/OpenAPI
+- [x] Criar documentação Swagger/OpenAPI
 - [ ] Implementar logs com Winston
 - [ ] Adicionar cache com Redis
 <!-- - [ ] Implementar notificações (email/SMS)
