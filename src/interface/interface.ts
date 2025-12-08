@@ -52,6 +52,7 @@ export interface IPet extends Document {
   breed?: string;
   age?: number;
   weight?: number;
+  isAlive: boolean;
   anamneses: Schema.Types.ObjectId[];
 }
 

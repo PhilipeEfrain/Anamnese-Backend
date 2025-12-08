@@ -256,6 +256,12 @@ const options: swaggerJsdoc.Options = {
               description: "Peso em kg",
               example: 25.5,
             },
+            isAlive: {
+              type: "boolean",
+              description: "Status do pet (vivo ou morto)",
+              example: true,
+              default: true,
+            },
             anamneses: {
               type: "array",
               description: "Lista de anamneses do pet",

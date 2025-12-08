@@ -9,6 +9,7 @@ const PetSchema = new Schema<IPet>(
     breed: { type: String },
     age: { type: Number },
     weight: { type: Number },
+    isAlive: { type: Boolean, required: true, default: true },
     anamneses: [{ type: Schema.Types.ObjectId, ref: "Anamnese" }],
   },
   { timestamps: true }
