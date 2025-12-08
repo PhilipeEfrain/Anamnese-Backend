@@ -66,6 +66,8 @@ export interface IClient extends Document {
 export interface IVet {
   email: string;
   password: string;
+  name: string;
+  crmv: string;
 }
 
 export interface IVetDocument extends IVet, Document {

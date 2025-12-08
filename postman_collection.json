@@ -1,0 +1,288 @@
+{
+  "info": {
+    "name": "Anamnese API",
+    "description": "API para sistema de anamnese veterinária",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "client_id",
+      "value": ""
+    },
+    {
+      "key": "pet_id",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "Vet",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"vet@example.com\",\n  \"password\": \"Test@123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/vet/register",
+              "host": ["{{base_url}}"],
+              "path": ["vet", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Token is present\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.token).to.exist;",
+                  "    pm.environment.set(\"token\", jsonData.token);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"vet@example.com\",\n  \"password\": \"Test@123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/vet/login",
+              "host": ["{{base_url}}"],
+              "path": ["vet", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Client",
+      "item": [
+        {
+          "name": "Create Client",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "pm.environment.set(\"client_id\", jsonData._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"João Silva\",\n  \"phone\": \"11999999999\",\n  \"email\": \"joao@example.com\",\n  \"address\": \"Rua das Flores, 123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/client",
+              "host": ["{{base_url}}"],
+              "path": ["client"]
+            }
+          }
+        },
+        {
+          "name": "Get All Clients",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/client",
+              "host": ["{{base_url}}"],
+              "path": ["client"]
+            }
+          }
+        },
+        {
+          "name": "Get Client by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/client/{{client_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["client", "{{client_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pet",
+      "item": [
+        {
+          "name": "Create Pet",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "pm.environment.set(\"pet_id\", jsonData._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"owner\": \"{{client_id}}\",\n  \"name\": \"Rex\",\n  \"species\": \"dog\",\n  \"breed\": \"Golden Retriever\",\n  \"age\": 3,\n  \"weight\": 25.5\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/pet",
+              "host": ["{{base_url}}"],
+              "path": ["pet"]
+            }
+          }
+        },
+        {
+          "name": "Get All Pets",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/pet",
+              "host": ["{{base_url}}"],
+              "path": ["pet"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Anamnese",
+      "item": [
+        {
+          "name": "Create Anamnese (Public)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pet\": \"{{pet_id}}\",\n  \"reason\": \"Vômito e diarreia\",\n  \"clinicalHistory\": {\n    \"previousDiseases\": \"Nenhuma\",\n    \"medications\": \"Nenhum\",\n    \"vaccines\": \"Todas em dia\",\n    \"diet\": \"Ração premium\"\n  },\n  \"symptoms\": {\n    \"vomiting\": true,\n    \"diarrhea\": true,\n    \"lethargy\": true,\n    \"appetiteLoss\": true\n  },\n  \"physicalExam\": {\n    \"temperature\": 38.5,\n    \"heartRate\": 120,\n    \"respiratoryRate\": 30\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/anamnese",
+              "host": ["{{base_url}}"],
+              "path": ["anamnese"]
+            }
+          }
+        },
+        {
+          "name": "Get All Anamneses (Protected)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/anamnese",
+              "host": ["{{base_url}}"],
+              "path": ["anamnese"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

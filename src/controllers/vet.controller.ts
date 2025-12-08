@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
  */
 export async function registerVet(req: Request, res: Response) {
   try {
-    const { email, password } = req.body;
+    const { name, crmv, email, password } = req.body;
 
     // Check if user already exists
     const existingVet = await Vet.findOne({ email });
@@ -16,11 +16,16 @@ export async function registerVet(req: Request, res: Response) {
     }
 
     // Create vet (hash handled by schema)
-    const vet = await Vet.create({ email, password });
+    const vet = await Vet.create({ name, crmv, email, password });
 
     return res.status(201).json({
       message: "Vet registered successfully",
-      vet: { id: vet._id, email: vet.email },
+      vet: {
+        id: vet._id,
+        name: vet.name,
+        crmv: vet.crmv,
+        email: vet.email,
+      },
     });
   } catch (error) {
     return res.status(500).json({ error: "Server error" });

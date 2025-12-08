@@ -14,7 +14,7 @@ export function authenticateVet(
 ) {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ error: "No token provided" });
+    return res.status(401).json({ error: "Token não fornecido" });
   }
 
   const token = authHeader.split(" ")[1];
@@ -24,6 +24,6 @@ export function authenticateVet(
     req.vet = decoded; // anexamos o vet no request
     next();
   } catch (err) {
-    return res.status(401).json({ error: "Invalid token" });
+    return res.status(401).json({ error: "Token inválido" });
   }
 }
