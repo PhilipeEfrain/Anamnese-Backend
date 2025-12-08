@@ -1,10 +1,14 @@
 import { Request, Response } from "express";
 import Client from "../models/Client";
 import Pet from "../models/Pet";
+import {
+  getPaginationParams,
+  createPaginationResult,
+  getSortParams,
+  buildSortObject,
+  buildSearchFilter,
+} from "../utils/pagination";
 
-/**
- * Create a new client
- */
 export async function createClient(req: Request, res: Response) {
   try {
     const client = await Client.create(req.body);
@@ -14,13 +18,29 @@ export async function createClient(req: Request, res: Response) {
   }
 }
 
-/**
- * Get all clients
- */
 export async function getAllClients(req: Request, res: Response) {
   try {
-    const clients = await Client.find().populate("pets");
-    return res.json(clients);
+    const { page, limit, skip } = getPaginationParams(req);
+    const sort = getSortParams(req, 'name');
+    const search = req.query.search as string;
+
+    let filter: any = {};
+
+    const searchFilter = buildSearchFilter(search, ['name', 'email', 'phone']);
+    if (searchFilter) {
+      filter = { ...filter, ...searchFilter };
+    }
+
+    const [clients, total] = await Promise.all([
+      Client.find(filter)
+        .populate("pets")
+        .sort(buildSortObject(sort))
+        .skip(skip)
+        .limit(limit),
+      Client.countDocuments(filter),
+    ]);
+
+    return res.json(createPaginationResult(clients, total, page, limit));
   } catch (error: any) {
     return res.status(500).json({ error: error.message });
   }

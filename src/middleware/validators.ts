@@ -53,9 +53,14 @@ export const validateVetLogin = [
   handleValidationErrors,
 ];
 
-/**
- * Validation rules for client creation
- */
+export const validateRefreshToken = [
+  body("refreshToken")
+    .trim()
+    .notEmpty()
+    .withMessage("Refresh token é obrigatório"),
+  handleValidationErrors,
+];
+
 export const validateClientCreation = [
   body("name").trim().notEmpty().withMessage("Nome é obrigatório"),
   body("phone")

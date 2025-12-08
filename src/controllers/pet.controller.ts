@@ -1,24 +1,25 @@
 import { Request, Response } from "express";
 import Pet from "../models/Pet";
 import Client from "../models/Client";
+import {
+  getPaginationParams,
+  createPaginationResult,
+  getSortParams,
+  buildSortObject,
+  buildSearchFilter,
+} from "../utils/pagination";
 
-/**
- * Create a new pet
- */
 export async function createPet(req: Request, res: Response) {
   try {
     const { owner, ...petData } = req.body;
 
-    // Check if owner exists
     const client = await Client.findById(owner);
     if (!client) {
       return res.status(404).json({ error: "Owner (client) not found" });
     }
 
-    // Create pet
     const pet = await Pet.create({ owner, ...petData });
 
-    // Add pet to client's pets array
     (client.pets as any).push((pet as any)._id);
     await client.save();
 
@@ -28,13 +29,39 @@ export async function createPet(req: Request, res: Response) {
   }
 }
 
-/**
- * Get all pets
- */
 export async function getAllPets(req: Request, res: Response) {
   try {
-    const pets = await Pet.find().populate("owner");
-    return res.json(pets);
+    const { page, limit, skip } = getPaginationParams(req);
+    const sort = getSortParams(req, 'name');
+    const search = req.query.search as string;
+    const species = req.query.species as string;
+    const owner = req.query.owner as string;
+
+    let filter: any = {};
+
+    const searchFilter = buildSearchFilter(search, ['name', 'breed']);
+    if (searchFilter) {
+      filter = { ...filter, ...searchFilter };
+    }
+
+    if (species) {
+      filter.species = new RegExp(species, 'i');
+    }
+
+    if (owner) {
+      filter.owner = owner;
+    }
+
+    const [pets, total] = await Promise.all([
+      Pet.find(filter)
+        .populate("owner")
+        .sort(buildSortObject(sort))
+        .skip(skip)
+        .limit(limit),
+      Pet.countDocuments(filter),
+    ]);
+
+    return res.json(createPaginationResult(pets, total, page, limit));
   } catch (error: any) {
     return res.status(500).json({ error: error.message });
   }

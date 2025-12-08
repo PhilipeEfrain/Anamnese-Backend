@@ -22,6 +22,7 @@ describe("Client Controller - Unit Tests", () => {
     mockRequest = {
       body: {},
       params: {},
+      query: {},
     };
 
     responseObject = {
@@ -102,7 +103,7 @@ describe("Client Controller - Unit Tests", () => {
   });
 
   describe("getAllClients", () => {
-    it("should return all clients with populated pets data", async () => {
+    it("should return all clients with populated pets data and pagination", async () => {
       const mockClients = [
         {
           _id: new mongoose.Types.ObjectId(),
@@ -124,35 +125,76 @@ describe("Client Controller - Unit Tests", () => {
         },
       ];
 
-      const mockPopulate = jest.fn().mockResolvedValue(mockClients);
+      const mockSort = jest.fn().mockReturnThis();
+      const mockSkip = jest.fn().mockReturnThis();
+      const mockLimit = jest.fn().mockResolvedValue(mockClients);
+      const mockPopulate = jest.fn().mockReturnValue({
+        sort: mockSort,
+        skip: mockSkip,
+        limit: mockLimit,
+      });
       (Client.find as jest.Mock).mockReturnValue({
         populate: mockPopulate,
       });
+      (Client.countDocuments as jest.Mock).mockResolvedValue(2);
 
       await getAllClients(mockRequest as Request, mockResponse as Response);
 
-      expect(Client.find).toHaveBeenCalledWith();
+      expect(Client.find).toHaveBeenCalledWith({});
       expect(mockPopulate).toHaveBeenCalledWith("pets");
-      expect(responseObject.json).toHaveBeenCalledWith(mockClients);
-      expect(responseObject.status).not.toHaveBeenCalled();
+      expect(Client.countDocuments).toHaveBeenCalledWith({});
+      expect(responseObject.json).toHaveBeenCalledWith({
+        data: mockClients,
+        pagination: {
+          page: 1,
+          limit: 10,
+          total: 2,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPrevPage: false,
+        },
+      });
     });
 
     it("should return empty array when no clients exist", async () => {
-      const mockPopulate = jest.fn().mockResolvedValue([]);
+      const mockSort = jest.fn().mockReturnThis();
+      const mockSkip = jest.fn().mockReturnThis();
+      const mockLimit = jest.fn().mockResolvedValue([]);
+      const mockPopulate = jest.fn().mockReturnValue({
+        sort: mockSort,
+        skip: mockSkip,
+        limit: mockLimit,
+      });
       (Client.find as jest.Mock).mockReturnValue({
         populate: mockPopulate,
       });
+      (Client.countDocuments as jest.Mock).mockResolvedValue(0);
 
       await getAllClients(mockRequest as Request, mockResponse as Response);
 
       expect(Client.find).toHaveBeenCalled();
       expect(mockPopulate).toHaveBeenCalledWith("pets");
-      expect(responseObject.json).toHaveBeenCalledWith([]);
+      expect(Client.countDocuments).toHaveBeenCalled();
+      expect(responseObject.json).toHaveBeenCalledWith({
+        data: [],
+        pagination: {
+          page: 1,
+          limit: 10,
+          total: 0,
+          totalPages: 0,
+          hasNextPage: false,
+          hasPrevPage: false,
+        },
+      });
     });
 
     it("should return 500 when database error occurs", async () => {
       const mockError = new Error("Database connection lost");
-      const mockPopulate = jest.fn().mockRejectedValue(mockError);
+      const mockPopulate = jest.fn().mockReturnValue({
+        sort: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockRejectedValue(mockError),
+      });
       (Client.find as jest.Mock).mockReturnValue({
         populate: mockPopulate,
       });
@@ -167,7 +209,11 @@ describe("Client Controller - Unit Tests", () => {
 
     it("should return 500 when populate fails", async () => {
       const mockError = new Error("Population failed");
-      const mockPopulate = jest.fn().mockRejectedValue(mockError);
+      const mockPopulate = jest.fn().mockReturnValue({
+        sort: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockRejectedValue(mockError),
+      });
       (Client.find as jest.Mock).mockReturnValue({
         populate: mockPopulate,
       });

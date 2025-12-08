@@ -22,6 +22,7 @@ describe("Pet Controller - Unit Tests", () => {
     mockRequest = {
       body: {},
       params: {},
+      query: {},
     };
 
     responseObject = {
@@ -233,7 +234,7 @@ describe("Pet Controller - Unit Tests", () => {
   });
 
   describe("getAllPets", () => {
-    it("should return all pets with populated owner data", async () => {
+    it("should return all pets with populated owner data and pagination", async () => {
       const mockPets = [
         {
           _id: new mongoose.Types.ObjectId(),
@@ -257,35 +258,76 @@ describe("Pet Controller - Unit Tests", () => {
         },
       ];
 
-      const mockPopulate = jest.fn().mockResolvedValue(mockPets);
+      const mockSort = jest.fn().mockReturnThis();
+      const mockSkip = jest.fn().mockReturnThis();
+      const mockLimit = jest.fn().mockResolvedValue(mockPets);
+      const mockPopulate = jest.fn().mockReturnValue({
+        sort: mockSort,
+        skip: mockSkip,
+        limit: mockLimit,
+      });
       (Pet.find as jest.Mock).mockReturnValue({
         populate: mockPopulate,
       });
+      (Pet.countDocuments as jest.Mock).mockResolvedValue(2);
 
       await getAllPets(mockRequest as Request, mockResponse as Response);
 
-      expect(Pet.find).toHaveBeenCalledWith();
+      expect(Pet.find).toHaveBeenCalledWith({});
       expect(mockPopulate).toHaveBeenCalledWith("owner");
-      expect(responseObject.json).toHaveBeenCalledWith(mockPets);
-      expect(responseObject.status).not.toHaveBeenCalled();
+      expect(Pet.countDocuments).toHaveBeenCalledWith({});
+      expect(responseObject.json).toHaveBeenCalledWith({
+        data: mockPets,
+        pagination: {
+          page: 1,
+          limit: 10,
+          total: 2,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPrevPage: false,
+        },
+      });
     });
 
     it("should return empty array when no pets exist", async () => {
-      const mockPopulate = jest.fn().mockResolvedValue([]);
+      const mockSort = jest.fn().mockReturnThis();
+      const mockSkip = jest.fn().mockReturnThis();
+      const mockLimit = jest.fn().mockResolvedValue([]);
+      const mockPopulate = jest.fn().mockReturnValue({
+        sort: mockSort,
+        skip: mockSkip,
+        limit: mockLimit,
+      });
       (Pet.find as jest.Mock).mockReturnValue({
         populate: mockPopulate,
       });
+      (Pet.countDocuments as jest.Mock).mockResolvedValue(0);
 
       await getAllPets(mockRequest as Request, mockResponse as Response);
 
       expect(Pet.find).toHaveBeenCalled();
       expect(mockPopulate).toHaveBeenCalledWith("owner");
-      expect(responseObject.json).toHaveBeenCalledWith([]);
+      expect(Pet.countDocuments).toHaveBeenCalled();
+      expect(responseObject.json).toHaveBeenCalledWith({
+        data: [],
+        pagination: {
+          page: 1,
+          limit: 10,
+          total: 0,
+          totalPages: 0,
+          hasNextPage: false,
+          hasPrevPage: false,
+        },
+      });
     });
 
     it("should return 500 when database error occurs", async () => {
       const mockError = new Error("Database connection lost");
-      const mockPopulate = jest.fn().mockRejectedValue(mockError);
+      const mockPopulate = jest.fn().mockReturnValue({
+        sort: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockRejectedValue(mockError),
+      });
       (Pet.find as jest.Mock).mockReturnValue({
         populate: mockPopulate,
       });
@@ -300,7 +342,11 @@ describe("Pet Controller - Unit Tests", () => {
 
     it("should return 500 when populate fails", async () => {
       const mockError = new Error("Population failed");
-      const mockPopulate = jest.fn().mockRejectedValue(mockError);
+      const mockPopulate = jest.fn().mockReturnValue({
+        sort: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockRejectedValue(mockError),
+      });
       (Pet.find as jest.Mock).mockReturnValue({
         populate: mockPopulate,
       });

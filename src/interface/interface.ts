@@ -73,3 +73,10 @@ export interface IVet {
 export interface IVetDocument extends IVet, Document {
   comparePassword(candidate: string): Promise<boolean>;
 }
+
+export interface IRefreshToken extends Document {
+  vet: Schema.Types.ObjectId;
+  token: string;
+  expiresAt: Date;
+  createdAt: Date;
+}

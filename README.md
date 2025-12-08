@@ -159,6 +159,38 @@ Content-Type: application/json
 
 **⚠️ Copie o `token` retornado!**
 
+A resposta será:
+
+```json
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIs...",
+  "refreshToken": "a1b2c3d4e5f6...",
+  "expiresIn": 3600
+}
+```
+
+#### 2️⃣-A Renovar Access Token (quando expirar)
+
+```http
+POST http://localhost:3000/vet/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "SEU_REFRESH_TOKEN_AQUI"
+}
+```
+
+#### 2️⃣-B Logout
+
+```http
+POST http://localhost:3000/vet/logout
+Content-Type: application/json
+
+{
+  "refreshToken": "SEU_REFRESH_TOKEN_AQUI"
+}
+```
+
 #### 3️⃣ Criar Cliente (requer token)
 
 ```http
@@ -213,6 +245,77 @@ Content-Type: application/json
     "temperature": 38.5,
     "heartRate": 120,
     "respiratoryRate": 30
+  }
+}
+```
+
+### 📄 Paginação e Filtros
+
+Todos os endpoints de listagem (`GET /client`, `GET /pet`, `GET /anamnese`) suportam paginação e filtros avançados:
+
+#### Parâmetros de Paginação
+
+- `page` (número): Página atual (padrão: 1)
+- `limit` (número): Itens por página (padrão: 10, máximo: 100)
+- `sortBy` (string): Campo para ordenação (ex: 'name', 'date', 'createdAt')
+- `sortOrder` (string): Ordem de classificação - `asc` ou `desc` (padrão: 'desc')
+
+#### Parâmetros de Busca
+
+**Para Clients:**
+- `search` (string): Busca por nome, email ou telefone
+
+**Para Pets:**
+- `search` (string): Busca por nome ou raça
+- `species` (string): Filtra por espécie
+- `owner` (ObjectId): Filtra por proprietário
+
+**Para Anamneses:**
+- `search` (string): Busca por motivo, avaliação, diagnóstico ou tratamento
+- `status` (string): Filtra por status
+- `startDate` (data): Data inicial do filtro
+- `endDate` (data): Data final do filtro
+
+#### Exemplos de Uso
+
+**Listar clientes com paginação:**
+```http
+GET http://localhost:3000/client?page=1&limit=10&sortBy=name&sortOrder=asc
+Authorization: Bearer SEU_TOKEN_AQUI
+```
+
+**Buscar clientes por nome:**
+```http
+GET http://localhost:3000/client?search=maria&page=1&limit=10
+Authorization: Bearer SEU_TOKEN_AQUI
+```
+
+**Listar pets de um cliente específico:**
+```http
+GET http://localhost:3000/pet?owner=ID_DO_CLIENTE&page=1&limit=20
+Authorization: Bearer SEU_TOKEN_AQUI
+```
+
+**Buscar anamneses em um período:**
+```http
+GET http://localhost:3000/anamnese?startDate=2024-01-01&endDate=2024-12-31&sortBy=date&sortOrder=desc
+Authorization: Bearer SEU_TOKEN_AQUI
+```
+
+#### Formato da Resposta
+
+Todas as respostas paginadas seguem este formato:
+
+```json
+{
+  "data": [...],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 50,
+    "totalPages": 5,
+    "hasNextPage": true,
+    "hasPrevPage": false
   }
 }
 ```
@@ -276,7 +379,9 @@ curl -X POST http://localhost:3000/client \
 ### Veterinários (Public)
 
 - `POST /vet/register` - Registrar novo veterinário
-- `POST /vet/login` - Login e obter token JWT
+- `POST /vet/login` - Login e obter access token + refresh token
+- `POST /vet/refresh` - Renovar access token usando refresh token
+- `POST /vet/logout` - Invalidar refresh token (logout)
 
 ### Clientes (Protected - requer token)
 
@@ -353,9 +458,11 @@ Anamnese/
 
 ### 1. **Autenticação e Autorização**
 
-- JWT com expiração de 1 hora
+- JWT (Access Token) com expiração de 1 hora
+- Refresh Token com expiração de 7 dias
 - Senhas hasheadas com bcryptjs (salt rounds: 10)
 - Middleware de autenticação para rotas protegidas
+- Sistema de logout que invalida refresh tokens
 
 ### 2. **Proteção contra Ataques**
 
@@ -492,14 +599,13 @@ Execute `npm run test:coverage` para ver o relatório completo.
 
 ## 🎯 Próximos Passos
 
-- [ ] Implementar refresh tokens
-- [ ] Adicionar upload de imagens (pets/exames)
-- [ ] Implementar paginação e filtros avançados
+- [x] Implementar refresh tokens
+- [x] Implementar paginação e filtros avançados
 - [ ] Criar documentação Swagger/OpenAPI
 - [ ] Implementar logs com Winston
 - [ ] Adicionar cache com Redis
-- [ ] Implementar notificações (email/SMS)
-- [ ] Deploy em produção (Railway/Render/AWS)
+<!-- - [ ] Implementar notificações (email/SMS)
+- [ ] Deploy em produção (Railway/Render/AWS) -->
 
 ## 👨‍💻 Desenvolvimento
 

@@ -34,6 +34,7 @@ describe("Anamnese Controller - Unit Tests", () => {
     mockRequest = {
       body: {},
       params: {},
+      query: {},
     };
 
     // Mock do objeto Response
@@ -174,7 +175,7 @@ describe("Anamnese Controller - Unit Tests", () => {
   // TESTES: getAll
   // ============================================
   describe("getAll", () => {
-    it("should return all anamneses with populated pet data", async () => {
+    it("should return all anamneses with populated pet data and pagination", async () => {
       // ARRANGE
       const mockAnamneses = [
         {
@@ -199,27 +200,53 @@ describe("Anamnese Controller - Unit Tests", () => {
         },
       ];
 
-      const mockPopulate = jest.fn().mockResolvedValue(mockAnamneses);
+      const mockSort = jest.fn().mockReturnThis();
+      const mockSkip = jest.fn().mockReturnThis();
+      const mockLimit = jest.fn().mockResolvedValue(mockAnamneses);
+      const mockPopulate = jest.fn().mockReturnValue({
+        sort: mockSort,
+        skip: mockSkip,
+        limit: mockLimit,
+      });
       (Anamnese.find as jest.Mock).mockReturnValue({
         populate: mockPopulate,
       });
+      (Anamnese.countDocuments as jest.Mock).mockResolvedValue(2);
 
       // ACT
       await getAll(mockRequest as Request, mockResponse as Response);
 
       // ASSERT
-      expect(Anamnese.find).toHaveBeenCalledWith();
+      expect(Anamnese.find).toHaveBeenCalledWith({});
       expect(mockPopulate).toHaveBeenCalledWith("pet");
-      expect(responseObject.json).toHaveBeenCalledWith(mockAnamneses);
-      expect(responseObject.status).not.toHaveBeenCalled(); // Retorna direto sem status
+      expect(Anamnese.countDocuments).toHaveBeenCalledWith({});
+      expect(responseObject.json).toHaveBeenCalledWith({
+        data: mockAnamneses,
+        pagination: {
+          page: 1,
+          limit: 10,
+          total: 2,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPrevPage: false,
+        },
+      });
     });
 
     it("should return empty array when no anamneses exist", async () => {
       // ARRANGE
-      const mockPopulate = jest.fn().mockResolvedValue([]);
+      const mockSort = jest.fn().mockReturnThis();
+      const mockSkip = jest.fn().mockReturnThis();
+      const mockLimit = jest.fn().mockResolvedValue([]);
+      const mockPopulate = jest.fn().mockReturnValue({
+        sort: mockSort,
+        skip: mockSkip,
+        limit: mockLimit,
+      });
       (Anamnese.find as jest.Mock).mockReturnValue({
         populate: mockPopulate,
       });
+      (Anamnese.countDocuments as jest.Mock).mockResolvedValue(0);
 
       // ACT
       await getAll(mockRequest as Request, mockResponse as Response);
@@ -227,13 +254,28 @@ describe("Anamnese Controller - Unit Tests", () => {
       // ASSERT
       expect(Anamnese.find).toHaveBeenCalled();
       expect(mockPopulate).toHaveBeenCalledWith("pet");
-      expect(responseObject.json).toHaveBeenCalledWith([]);
+      expect(Anamnese.countDocuments).toHaveBeenCalled();
+      expect(responseObject.json).toHaveBeenCalledWith({
+        data: [],
+        pagination: {
+          page: 1,
+          limit: 10,
+          total: 0,
+          totalPages: 0,
+          hasNextPage: false,
+          hasPrevPage: false,
+        },
+      });
     });
 
     it("should return 500 when database error occurs", async () => {
       // ARRANGE
       const mockError = new Error("Database connection lost");
-      const mockPopulate = jest.fn().mockRejectedValue(mockError);
+      const mockPopulate = jest.fn().mockReturnValue({
+        sort: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockRejectedValue(mockError),
+      });
       (Anamnese.find as jest.Mock).mockReturnValue({
         populate: mockPopulate,
       });
@@ -251,7 +293,11 @@ describe("Anamnese Controller - Unit Tests", () => {
     it("should return 500 when populate fails", async () => {
       // ARRANGE
       const mockError = new Error("Population failed");
-      const mockPopulate = jest.fn().mockRejectedValue(mockError);
+      const mockPopulate = jest.fn().mockReturnValue({
+        sort: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockRejectedValue(mockError),
+      });
       (Anamnese.find as jest.Mock).mockReturnValue({
         populate: mockPopulate,
       });
@@ -432,7 +478,11 @@ describe("Anamnese Controller - Unit Tests", () => {
     it("getAll should handle network timeout errors", async () => {
       // ARRANGE
       const timeoutError = new Error("Network timeout");
-      const mockPopulate = jest.fn().mockRejectedValue(timeoutError);
+      const mockPopulate = jest.fn().mockReturnValue({
+        sort: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        limit: jest.fn().mockRejectedValue(timeoutError),
+      });
       (Anamnese.find as jest.Mock).mockReturnValue({
         populate: mockPopulate,
       });
