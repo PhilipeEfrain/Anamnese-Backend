@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { mapMongoError, formatMongoError } from "../utils/mongoErrorMapper";
 
 /**
  * Custom error class
@@ -27,37 +28,57 @@ export function errorHandler(
 ) {
   let statusCode = err.statusCode || 500;
   let message = err.message || "Internal Server Error";
+  let details = undefined;
+
+  // Mapear erros do MongoDB
+  const mappedError = mapMongoError(err);
+
+  // Log detalhado do erro no servidor
+  if (mappedError.code !== "UNKNOWN_ERROR") {
+    console.error(formatMongoError(mappedError));
+  }
 
   // Mongoose validation error
   if (err.name === "ValidationError") {
     statusCode = 400;
-    message = Object.values(err.errors)
-      .map((e: any) => e.message)
-      .join(", ");
+    message = mappedError.message;
+    details = mappedError.details;
   }
 
   // Mongoose duplicate key error
-  if (err.code === 11000) {
+  else if (err.code === 11000) {
     statusCode = 400;
-    const field = Object.keys(err.keyPattern)[0];
-    message = `${field} já existe`;
+    message = mappedError.message;
+    details = mappedError.details;
   }
 
   // Mongoose cast error (invalid ID)
-  if (err.name === "CastError") {
+  else if (err.name === "CastError") {
     statusCode = 400;
-    message = "Formato de ID inválido";
+    message = mappedError.message;
   }
 
   // JWT errors
-  if (err.name === "JsonWebTokenError") {
+  else if (err.name === "JsonWebTokenError") {
     statusCode = 401;
     message = "Token inválido";
-  }
-
-  if (err.name === "TokenExpiredError") {
+  } else if (err.name === "TokenExpiredError") {
     statusCode = 401;
     message = "Token expirado";
+  }
+
+  // Erros de conexão MongoDB
+  else if (
+    mappedError.code === "CONNECTION_TIMEOUT" ||
+    mappedError.code === "NETWORK_ERROR" ||
+    mappedError.code === "AUTH_FAILED"
+  ) {
+    statusCode = 503;
+    message = "Serviço temporariamente indisponível";
+    if (process.env.NODE_ENV === "development") {
+      message = mappedError.message;
+      details = mappedError.suggestion;
+    }
   }
 
   // Don't expose internal errors in production
@@ -69,7 +90,11 @@ export function errorHandler(
   res.status(statusCode).json({
     status: "error",
     message,
-    ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
+    ...(details && { details }),
+    ...(process.env.NODE_ENV === "development" && {
+      stack: err.stack,
+      errorCode: mappedError.code,
+    }),
   });
 }
 
