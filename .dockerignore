@@ -1,0 +1,17 @@
+node_modules
+dist
+coverage
+.env
+.env.test
+.git
+.gitignore
+README.md
+npm-debug.log
+.DS_Store
+*.spec.ts
+*.test.ts
+tests
+scripts
+postman_collection.json
+test-api.sh
+test-mongo.js
