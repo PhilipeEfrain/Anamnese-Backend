@@ -74,6 +74,8 @@ export interface IVet {
 
 export interface IVetDocument extends IVet, Document {
   comparePassword(candidate: string): Promise<boolean>;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface IRefreshToken extends Document {

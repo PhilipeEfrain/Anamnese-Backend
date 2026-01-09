@@ -255,15 +255,6 @@ const options: swaggerJsdoc.Options = {
                 example: "507f1f77bcf86cd799439013",
               },
             },
-            vets: {
-              type: "array",
-              description:
-                "Lista de veterinários vinculados ao cliente (obrigatório, mínimo 1)",
-              items: {
-                type: "string",
-                example: "507f1f77bcf86cd799439013",
-              },
-            },
             createdAt: {
               type: "string",
               format: "date-time",
