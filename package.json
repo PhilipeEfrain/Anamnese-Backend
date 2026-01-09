@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
+    "postinstall": "npm run build",
     "start": "node dist/index.js",
     "seed:vet": "ts-node scripts/createVet.ts",
     "test": "jest",
