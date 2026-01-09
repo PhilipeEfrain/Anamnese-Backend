@@ -5,6 +5,16 @@ import { mapMongoError, formatMongoError } from "./utils/mongoErrorMapper";
 
 const PORT = process.env.PORT || 3000;
 
+// Validar variáveis de ambiente obrigatórias
+const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET', 'JWT_REFRESH_SECRET'];
+const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missingEnvVars.length > 0) {
+  console.error(`❌ Variáveis de ambiente faltando: ${missingEnvVars.join(', ')}`);
+  console.error('Configure as variáveis no Railway antes de continuar.');
+  process.exit(1);
+}
+
 async function start() {
   try {
     console.log("🔄 Conectando ao MongoDB...");
@@ -16,10 +26,15 @@ async function start() {
 
     console.log("✅ MongoDB conectado com sucesso!");
 
-    // Listener para eventos de conexão
+    // Listener para eventos de conexão (com rate limiting)
+    let lastErrorLog = 0;
     mongoose.connection.on("error", (err) => {
-      const mappedError = mapMongoError(err);
-      console.error(formatMongoError(mappedError));
+      const now = Date.now();
+      if (now - lastErrorLog > 5000) { // Log no máximo a cada 5 segundos
+        const mappedError = mapMongoError(err);
+        console.error(formatMongoError(mappedError));
+        lastErrorLog = now;
+      }
     });
 
     mongoose.connection.on("disconnected", () => {
