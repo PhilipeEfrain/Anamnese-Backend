@@ -62,6 +62,7 @@ export interface IClient extends Document {
   email?: string;
   address?: string;
   pets: Schema.Types.ObjectId[];
+  vets: Schema.Types.ObjectId[];
 }
 
 export interface IVet {

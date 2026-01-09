@@ -2,10 +2,15 @@ import bcrypt from "bcryptjs";
 import mongoose, { Schema } from "mongoose";
 import { IVetDocument } from "../interface/interface";
 
-const VetSchema = new Schema<IVetDocument>({
-  email: { type: String, required: true, unique: true, lowercase: true },
-  password: { type: String, required: true },
-});
+const VetSchema = new Schema<IVetDocument>(
+  {
+    email: { type: String, required: true, unique: true, lowercase: true },
+    password: { type: String, required: true },
+    name: { type: String, required: true },
+    crmv: { type: String, required: true, unique: true },
+  },
+  { timestamps: true }
+);
 
 // Hash password before saving
 VetSchema.pre<IVetDocument>("save", async function () {

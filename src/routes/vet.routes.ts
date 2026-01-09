@@ -4,6 +4,7 @@ import {
   loginVet,
   refreshAccessToken,
   logout,
+  getAllVets,
 } from "../controllers/vet.controller";
 import { authLimiter } from "../middleware/rateLimiter";
 import {
@@ -232,5 +233,29 @@ router.post("/refresh", validateRefreshToken, refreshAccessToken);
  *               $ref: '#/components/schemas/Error'
  */
 router.post("/logout", validateRefreshToken, logout);
+
+/**
+ * @swagger
+ * /vet/list:
+ *   get:
+ *     summary: Listar todos os veterinários cadastrados
+ *     tags: [Veterinários]
+ *     responses:
+ *       200:
+ *         description: Lista de veterinários
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/VetListItem'
+ *       500:
+ *         description: Erro interno do servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.get("/list", getAllVets);
 
 export default router;

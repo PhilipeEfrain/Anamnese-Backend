@@ -9,7 +9,7 @@ async function start() {
   try {
     console.log("🔄 Conectando ao MongoDB...");
 
-    await mongoose.connect(process.env.MONGO_URI as string, {
+    await mongoose.connect(process.env.MONGODB_URI as string, {
       serverSelectionTimeoutMS: 5000, // 5 segundos timeout
       socketTimeoutMS: 45000,
     });

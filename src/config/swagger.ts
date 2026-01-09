@@ -151,6 +151,21 @@ const options: swaggerJsdoc.Options = {
             updatedAt: { type: "string", format: "date-time" },
           },
         },
+        VetListItem: {
+          type: "object",
+          properties: {
+            value: {
+              type: "string",
+              description: "Nome do veterinário",
+              example: "Dr. João Silva",
+            },
+            id: {
+              type: "string",
+              description: "ID do veterinário",
+              example: "507f1f77bcf86cd799439011",
+            },
+          },
+        },
         LoginResponse: {
           type: "object",
           properties: {
@@ -168,6 +183,29 @@ const options: swaggerJsdoc.Options = {
               type: "number",
               description: "Tempo de expiração em segundos",
               example: 3600,
+            },
+            vet: {
+              type: "object",
+              description: "Dados do veterinário autenticado",
+              properties: {
+                _id: {
+                  type: "string",
+                  example: "507f1f77bcf86cd799439011",
+                },
+                email: {
+                  type: "string",
+                  example: "joao@vet.com",
+                },
+                name: {
+                  type: "string",
+                  example: "Dr. João Silva",
+                },
+                createdAt: {
+                  type: "string",
+                  format: "date-time",
+                  example: "2026-01-01T10:00:00.000Z",
+                },
+              },
             },
           },
         },
@@ -206,6 +244,24 @@ const options: swaggerJsdoc.Options = {
               items: {
                 type: "string",
                 example: "507f1f77bcf86cd799439012",
+              },
+            },
+            vets: {
+              type: "array",
+              description:
+                "Lista de veterinários vinculados ao cliente (obrigatório, mínimo 1)",
+              items: {
+                type: "string",
+                example: "507f1f77bcf86cd799439013",
+              },
+            },
+            vets: {
+              type: "array",
+              description:
+                "Lista de veterinários vinculados ao cliente (obrigatório, mínimo 1)",
+              items: {
+                type: "string",
+                example: "507f1f77bcf86cd799439013",
               },
             },
             createdAt: {

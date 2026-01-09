@@ -59,6 +59,12 @@ export async function loginVet(req: Request, res: Response) {
       accessToken,
       refreshToken: refreshTokenValue,
       expiresIn: 3600,
+      vet: {
+        _id: vet._id.toString(),
+        email: vet.email,
+        name: vet.name,
+        createdAt: vet.createdAt?.toISOString(),
+      },
     });
   } catch (error) {
     return res.status(500).json({ error: "Server error" });
@@ -115,6 +121,23 @@ export async function logout(req: Request, res: Response) {
     await RefreshToken.deleteOne({ token: refreshToken });
 
     return res.json({ message: "Logged out successfully" });
+  } catch (error) {
+    return res.status(500).json({ error: "Server error" });
+  }
+}
+
+export async function getAllVets(req: Request, res: Response) {
+  try {
+    const vets = await Vet.find()
+      .select("_id name email crmv createdAt")
+      .lean();
+
+    const vetList = vets.map((vet) => ({
+      value: vet.name,
+      id: vet._id.toString(),
+    }));
+
+    return res.json(vetList);
   } catch (error) {
     return res.status(500).json({ error: "Server error" });
   }
