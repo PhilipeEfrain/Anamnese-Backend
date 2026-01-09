@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
+    "postinstall": "npm run build",
     "start": "node dist/index.js",
     "seed:vet": "ts-node scripts/createVet.ts",
     "test": "jest",
@@ -25,7 +26,8 @@
     "jsonwebtoken": "^9.0.3",
     "mongodb": "^7.0.0",
     "mongoose": "^9.0.1",
-    "swagger-jsdoc": "^6.2.8",
+    "swagger-jsdoc": "^6.2.8",,
+    "typescript": "^5.9.3"
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
@@ -40,7 +42,6 @@
     "supertest": "^7.1.4",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
-    "ts-node-dev": "^2.0.0",
-    "typescript": "^5.9.3"
+    "ts-node-dev": "^2.0.0"
   }
 }
