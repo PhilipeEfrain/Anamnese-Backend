@@ -618,15 +618,58 @@ Execute `npm run test:coverage` para ver o relatório completo.
 - `assessment`: opcional, string
 - `plan`: opcional, string
 
+## 🔒 Restrição de Acesso (Segurança Adicional)
+
+### Protegendo Rotas Administrativas com API Key
+
+Para restringir o acesso a determinadas rotas (como listagem de veterinários):
+
+1. **Adicione a variável `API_KEY` no Railway:**
+   ```
+   API_KEY=sua_chave_secreta_super_forte_aqui
+   ```
+
+2. **Use o middleware `requireApiKey`** nas rotas que deseja proteger:
+   ```typescript
+   import { requireApiKey } from "./middleware/apiKeyAuth";
+   
+   // Proteger rota específica
+   router.get("/vet/list", requireApiKey, getAllVets);
+   ```
+
+3. **Para fazer requisições protegidas:**
+   ```bash
+   curl https://web-production-5ff3c.up.railway.app/vet/list \
+     -H "x-api-key: sua_chave_secreta_super_forte_aqui"
+   ```
+
+### Outras Opções de Segurança
+
+**Railway Private Networking:**
+- Torne o serviço privado nas configurações do Railway
+- Desabilite "Public Domain" em Settings > Networking
+- ⚠️ Seu frontend público não conseguirá acessar
+
+**CORS Restrito:**
+- Configure `CORS_ORIGIN` no Railway com a URL do seu frontend:
+  ```
+  CORS_ORIGIN=https://seu-frontend.vercel.app
+  ```
+- Isso impede requisições de outros domínios
+
+**IP Whitelist (Avançado):**
+- Adicione middleware para verificar IPs permitidos
+- Útil para APIs internas
+
 ## 🎯 Próximos Passos
 
 - [x] Implementar refresh tokens
 - [x] Implementar paginação e filtros avançados
 - [x] Criar documentação Swagger/OpenAPI
+- [x] Deploy em produção no Railway
 - [ ] Implementar logs com Winston
 - [ ] Adicionar cache com Redis
-<!-- - [ ] Implementar notificações (email/SMS)
-- [ ] Deploy em produção (Railway/Render/AWS) -->
+<!-- - [ ] Implementar notificações (email/SMS) -->
 
 ## 👨‍💻 Desenvolvimento
 
